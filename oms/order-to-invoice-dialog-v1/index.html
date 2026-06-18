@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>订单转发票信息提示 · 交互原型</title>
+<style>
+  :root {
+    --primary: #2d8cf0;
+    --primary-hover: #2376d6;
+    --primary-soft: #ecf5ff;
+    --text-1: #1f2329;
+    --text-2: #51565d;
+    --text-3: #8a9099;
+    --line: #e4e7ed;
+    --bg-soft: #f7f8fa;
+    --danger: #f04134;
+    --warn-yellow: #ffce00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--text-1);
+    background: #e9ecf1;
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    -webkit-font-smoothing: antialiased;
+  }
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(20,22,28,.35);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+
+  /* 弹窗 */
+  .dialog {
+    width: 600px; max-width: 100%;
+    background: #fff;
+    border: 1px solid #d8dce3;
+    border-radius: 6px;
+    box-shadow: 0 12px 48px rgba(0,0,0,.16);
+    padding: 14px;
+    animation: pop .22s cubic-bezier(.2,.8,.3,1.1);
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: translateY(8px) scale(.985); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* 盒式头部:提示 + 闪电/关闭 */
+  .header-box {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 16px 18px;
+    display: flex; align-items: center;
+  }
+  .header-title { font-size: 15px; color: var(--text-3); }
+  .header-icons {
+    position: absolute; top: 8px; right: 10px;
+    display: flex; align-items: flex-start; gap: 2px;
+  }
+  .spark {
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .spark svg { width: 18px; height: 18px; }
+  .close-btn {
+    width: 26px; height: 26px;
+    border: none; background: transparent; cursor: pointer;
+    color: var(--text-3);
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px; transition: all .15s;
+  }
+  .close-btn:hover { background: var(--bg-soft); color: var(--text-1); }
+
+  /* 正文 */
+  .content { padding: 26px 14px 4px; }
+  .main-title {
+    text-align: center;
+    font-size: 20px; font-weight: 600;
+    color: var(--text-1);
+    letter-spacing: .5px;
+  }
+  .summary {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 15px; color: var(--text-2);
+    line-height: 1.8;
+  }
+  .summary .num { color: var(--primary); font-size: 16px; font-weight: 600; padding: 0 2px; }
+
+  /* 明细分组:左侧竖线导轨 */
+  .detail-group {
+    margin: 22px 0 4px;
+    padding-left: 14px;
+    border-left: 1px solid var(--line);
+  }
+  .detail-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: none; background: transparent; cursor: pointer;
+    color: var(--primary);
+    font-size: 17px; font-weight: 500;
+    font-family: inherit; padding: 0;
+  }
+  .detail-toggle .count {
+    font-size: 13px; color: var(--text-3); font-weight: 400; margin-left: 2px;
+  }
+  .detail-toggle .chevron { display: inline-flex; transition: transform .25s ease; }
+  .detail-toggle.open .chevron { transform: rotate(180deg); }
+
+  /* 折叠区:grid 平滑展开 */
+  .detail-wrap {
+    display: grid; grid-template-rows: 0fr;
+    transition: grid-template-rows .28s ease;
+  }
+  .detail-wrap.open { grid-template-rows: 1fr; }
+  .detail-inner { overflow: hidden; }
+
+  .detail-card {
+    margin-top: 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px; overflow: hidden;
+  }
+  .detail-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 14px;
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--line);
+  }
+  .detail-bar .label { font-size: 13px; color: var(--text-2); }
+  .detail-bar .label b { color: var(--danger); font-weight: 600; }
+  .export-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    border: none; background: transparent; cursor: pointer;
+    color: var(--primary); font-size: 13px; font-family: inherit;
+    padding: 2px 4px; border-radius: 4px; transition: background .15s;
+  }
+  .export-btn:hover { background: var(--primary-soft); }
+  .export-btn svg { width: 14px; height: 14px; }
+  .bar-actions { display: flex; align-items: center; gap: 2px; }
+  .export-btn.copied { color: #18a058; }
+  .export-btn.copied:hover { background: #e8f6ee; }
+
+  .detail-scroll { max-height: 200px; overflow-y: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    position: sticky; top: 0; background: #fff;
+    color: var(--text-3); font-weight: 500; text-align: left;
+    padding: 9px 14px; border-bottom: 1px solid var(--line); white-space: nowrap;
+  }
+  tbody td { padding: 9px 14px; border-bottom: 1px solid #f1f2f4; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #fafbfc; }
+  .co-no { font-variant-numeric: tabular-nums; font-weight: 500; }
+  .reason { color: var(--text-2); }
+  .tag-fail {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 20px;
+    background: #fdecea; color: var(--danger);
+    font-size: 12px; font-weight: 500;
+  }
+  .tag-fail::before { content:""; width:5px; height:5px; border-radius:50%; background: var(--danger); }
+
+  /* 底部按钮 */
+  .footer {
+    display: flex; justify-content: flex-end; gap: 12px;
+    padding: 18px 14px 6px;
+    margin-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+  .btn {
+    height: 40px; padding: 0 20px; border-radius: 4px;
+    font-size: 15px; font-weight: 400; cursor: pointer;
+    font-family: inherit; transition: all .15s; border: 1px solid transparent;
+  }
+  .btn-ghost { background: #fff; border-color: var(--primary); color: var(--primary); }
+  .btn-ghost:hover { background: var(--primary-soft); }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); }
+
+  .demo-tip {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    background: rgba(28,32,36,.82); color: #fff;
+    font-size: 12px; padding: 6px 14px; border-radius: 20px; z-index: 10;
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-tip">提示式弹窗原型 · 点击「明细」展开查看 / 导出</div>
+
+<div class="overlay">
+  <div class="dialog" role="alertdialog" aria-labelledby="dlg-title">
+
+    <!-- 盒式头部 -->
+    <div class="header-box">
+      <span class="header-title">提示</span>
+      <div class="header-icons">
+        <span class="spark" title="智能提示">
+          <svg viewBox="0 0 24 24" fill="var(--warn-yellow)" stroke="#e0a800" stroke-width="1" stroke-linejoin="round">
+            <path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/>
+          </svg>
+        </span>
+        <button class="close-btn" onclick="closeDialog()" aria-label="关闭">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M6 6l12 12M18 6L6 18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 正文 -->
+    <div class="content">
+      <div class="main-title" id="dlg-title">订单转发票信息提示</div>
+
+      <p class="summary">
+        本次提交 <span class="num">102</span> 单,正确的有 <span class="num">70</span> 单。
+        信息不全的有 <span class="num">32</span> 单
+      </p>
+
+      <!-- 明细分组 -->
+      <div class="detail-group">
+        <button class="detail-toggle" id="detailToggle" onclick="toggleDetail()" aria-expanded="false">
+          <span>明细</span>
+          <span class="count">(共 32 单未提交)</span>
+          <span class="chevron">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </span>
+        </button>
+
+        <div class="detail-wrap" id="detailWrap">
+          <div class="detail-inner">
+            <div class="detail-card">
+              <div class="detail-bar">
+                <span class="label">信息不全明细 · 共 <b>32</b> 单未提交</span>
+                <div class="bar-actions">
+                  <button class="export-btn" onclick="copyErrorNos(this)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></svg>
+                    一键复制错误单号
+                  </button>
+                  <button class="export-btn" onclick="exportList()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+                    导出清单
+                  </button>
+                </div>
+              </div>
+              <div class="detail-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width:34%">CO 号</th>
+                      <th style="width:38%">错误原因</th>
+                      <th style="width:28%">结果</th>
+                    </tr>
+                  </thead>
+                  <tbody id="detailBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部按钮 -->
+    <div class="footer">
+      <button class="btn btn-ghost" onclick="closeDialog()">取消</button>
+      <button class="btn btn-primary" onclick="confirmSubmit()">跳过错误,仅提交正确数据(70)</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // 明细数据:前两条为示例,补足至 32 条
+  const reasons = ['没有仓库', '仓库信息不一致'];
+  const details = [
+    { co: 'co1234', reason: '没有仓库' },
+    { co: 'co1236', reason: '仓库信息不一致' },
+  ];
+  let base = 1238;
+  for (let i = 0; i < 30; i++) {
+    details.push({ co: 'co' + base, reason: reasons[i % 2] });
+    base += (i % 3) + 1;
+  }
+
+  document.getElementById('detailBody').innerHTML = details.map(d => `
+    <tr>
+      <td class="co-no">${d.co}</td>
+      <td class="reason">${d.reason}</td>
+      <td><span class="tag-fail">未提交</span></td>
+    </tr>`).join('');
+
+  function toggleDetail() {
+    const wrap = document.getElementById('detailWrap');
+    const btn = document.getElementById('detailToggle');
+    const open = wrap.classList.toggle('open');
+    btn.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open);
+  }
+  function closeDialog() { alert('已取消提交。(原型演示)'); }
+  function confirmSubmit() {
+    alert('已跳过 32 个信息不全的单,仅提交 70 个正确数据转发票。\n异常单可点「导出清单」线下补全。(原型演示)');
+  }
+  function exportList() {
+    const csv = '﻿' + 'CO号,错误原因,结果\n' + details.map(d => `${d.co},${d.reason},未提交`).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = '信息不全CO单清单_32单.csv'; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // 一键复制错误单号(逗号分隔,便于粘贴到批量搜索/筛选框)
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  function copyErrorNos(btn) {
+    const text = details.map(d => d.co).join(',');
+    const done = () => {
+      const old = btn.innerHTML;
+      btn.classList.add('copied');
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg> 已复制 ' + details.length + ' 个单号';
+      setTimeout(() => { btn.innerHTML = old; btn.classList.remove('copied'); }, 1800);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done).catch(() => { fallbackCopy(text); done(); });
+    } else {
+      fallbackCopy(text); done();
+    }
+  }
+</script>
+</body>
+</html>
