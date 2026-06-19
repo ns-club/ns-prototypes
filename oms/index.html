@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OMS 原型入口</title>
+<style>
+  :root {
+    --bg: #f5f7fb;
+    --panel: #fff;
+    --line: #dbe2ee;
+    --text: #1f2937;
+    --muted: #5b6472;
+    --brand: #2563eb;
+    --brand-soft: #eaf1ff;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .wrap {
+    min-height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,.92);
+  }
+  h1 { margin: 0; font-size: 18px; }
+  p { margin: 4px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    text-decoration: none;
+    background: #fff;
+    white-space: nowrap;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .btn.primary {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+  }
+  .btn.secondary {
+    background: var(--brand-soft);
+    color: var(--brand);
+    border-color: transparent;
+  }
+  .body {
+    padding: 16px;
+    display: grid;
+    gap: 16px;
+    align-content: start;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .card-head strong { font-size: 14px; }
+  .card-head span { color: var(--muted); font-size: 12px; }
+  .card-body { padding: 16px; }
+  .list { display: grid; gap: 10px; }
+  .item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    text-decoration: none;
+    color: inherit;
+    background: #fff;
+  }
+  .item:hover { background: #f8fafc; }
+  .item strong { display: block; margin-bottom: 4px; }
+  .item span { display: block; color: var(--muted); font-size: 12px; line-height: 1.55; }
+  .empty {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .badge {
+    align-self: flex-start;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  @media (max-width: 720px) {
+    .head { flex-direction: column; align-items: flex-start; }
+    .item { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="head">
+      <div>
+        <h1>OMS 原型入口</h1>
+        <p>这里是 OMS 目录页。当前只有一个可演示的订单转发票弹窗原型。</p>
+      </div>
+      <div class="actions">
+        <a class="btn secondary" href="../" target="_top">返回首页</a>
+        <a class="btn primary" href="order-to-invoice-dialog-v1/" target="_top">打开原型</a>
+      </div>
+    </header>
+
+    <main class="body">
+      <section class="card">
+        <div class="card-head">
+          <strong>可用原型</strong>
+          <span>1 个</span>
+        </div>
+        <div class="card-body">
+          <div class="list">
+            <a class="item" href="order-to-invoice-dialog-v1/" target="_top">
+              <div>
+                <strong>订单转发票信息提示</strong>
+                <span>提示式弹窗原型，支持展开明细、一键复制和导出清单。</span>
+              </div>
+              <span class="badge">可预览</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ns-prototypes 预览</title>
+<title>ns-prototypes</title>
 <style>
   :root {
-    color-scheme: light;
     --bg: #f5f7fb;
-    --panel: #ffffff;
+    --panel: #fff;
     --line: #dbe2ee;
     --text: #1f2937;
     --muted: #5b6472;
     --brand: #2563eb;
     --brand-soft: #eaf1ff;
+    --ok: #0f766e;
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
@@ -23,33 +23,31 @@
     background: var(--bg);
     color: var(--text);
   }
-  .shell {
+  a { color: inherit; }
+  .page {
+    min-height: 100%;
     display: grid;
     grid-template-rows: auto 1fr;
-    min-height: 100%;
   }
   .topbar {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     gap: 16px;
-    padding: 16px 20px;
+    padding: 18px 20px;
     border-bottom: 1px solid var(--line);
     background: rgba(255,255,255,.92);
     backdrop-filter: blur(8px);
   }
-  .title {
-    min-width: 0;
-  }
-  .title h1 {
+  h1 {
     margin: 0;
-    font-size: 18px;
-    font-weight: 700;
+    font-size: 20px;
   }
-  .title p {
+  .subtitle {
     margin: 4px 0 0;
     color: var(--muted);
     font-size: 13px;
+    line-height: 1.6;
   }
   .actions {
     display: flex;
@@ -60,15 +58,15 @@
   .btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0 14px;
     border-radius: 6px;
     border: 1px solid var(--line);
-    color: var(--text);
-    background: #fff;
     text-decoration: none;
-    font-size: 14px;
+    background: #fff;
     white-space: nowrap;
+    font-size: 14px;
   }
   .btn.primary {
     background: var(--brand);
@@ -82,80 +80,84 @@
   }
   .content {
     display: grid;
-    grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+    grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
     gap: 16px;
     padding: 16px;
     min-height: 0;
   }
-  .sidebar, .preview {
+  .panel {
+    min-width: 0;
     min-height: 0;
     background: var(--panel);
     border: 1px solid var(--line);
     border-radius: 8px;
     overflow: hidden;
   }
-  .sidebar {
+  .nav {
     display: flex;
     flex-direction: column;
   }
-  .sidebar header {
-    padding: 16px 16px 12px;
+  .nav-header {
+    padding: 16px;
     border-bottom: 1px solid var(--line);
   }
-  .sidebar h2 {
+  .nav-header h2 {
     margin: 0;
     font-size: 15px;
   }
-  .sidebar p {
+  .nav-header p {
     margin: 6px 0 0;
     color: var(--muted);
     font-size: 13px;
     line-height: 1.6;
   }
-  .nav {
+  .nav-list {
     padding: 10px;
     overflow: auto;
   }
-  .nav a {
+  .nav-item {
     display: block;
     padding: 12px 12px;
     border-radius: 6px;
     text-decoration: none;
-    color: var(--text);
     border: 1px solid transparent;
   }
-  .nav a:hover {
+  .nav-item:hover {
     background: #f8fafc;
     border-color: var(--line);
   }
-  .nav .current {
+  .nav-item.active {
     background: var(--brand-soft);
     border-color: rgba(37,99,235,.18);
   }
-  .nav .path {
+  .nav-item strong {
     display: block;
-    margin-top: 4px;
-    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .nav-item span {
+    display: block;
     font-size: 12px;
-    word-break: break-all;
+    color: var(--muted);
+    line-height: 1.55;
+    word-break: break-word;
   }
   .preview {
     display: grid;
     grid-template-rows: auto 1fr;
-    min-width: 0;
   }
-  .preview-head {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--line);
+  .preview-header {
     display: flex;
     justify-content: space-between;
-    gap: 12px;
     align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
   }
-  .preview-head strong {
+  .preview-header strong {
     font-size: 14px;
   }
-  .preview-head span {
+  .preview-header span {
     color: var(--muted);
     font-size: 12px;
   }
@@ -173,43 +175,56 @@
 </style>
 </head>
 <body>
-<div class="shell">
-  <div class="topbar">
-    <div class="title">
-      <h1>ns-prototypes</h1>
-      <p>GitHub Pages 入口页，默认展示 OMS 原型效果。</p>
-    </div>
-    <div class="actions">
-      <a class="btn secondary" href="oms/order-to-invoice-dialog-v1/" target="_blank" rel="noreferrer">新窗口打开原型</a>
-      <a class="btn primary" href="https://github.com/ns-club/ns-prototypes" target="_blank" rel="noreferrer">查看仓库</a>
-    </div>
-  </div>
-
-  <div class="content">
-    <aside class="sidebar">
-      <header>
-        <h2>原型目录</h2>
-        <p>每个目录都可以直接作为静态页面发布。当前默认预览 OMS 目录下的示例原型。</p>
-      </header>
-      <nav class="nav" aria-label="原型目录">
-        <a class="current" href="oms/order-to-invoice-dialog-v1/" target="preview">
-          OMS / order-to-invoice-dialog-v1
-          <span class="path">oms/order-to-invoice-dialog-v1/index.html</span>
-        </a>
-        <div style="padding:12px 12px 0;color:var(--muted);font-size:12px;line-height:1.6;">
-          其他目录当前只作为原型素材仓库使用，没有单独的在线入口。
-        </div>
-      </nav>
-    </aside>
-
-    <section class="preview" aria-label="原型预览">
-      <div class="preview-head">
-        <strong>在线预览</strong>
-        <span>打开左侧目录即可切换</span>
+  <div class="page">
+    <header class="topbar">
+      <div>
+        <h1>ns-prototypes</h1>
+        <p class="subtitle">静态 HTML 原型索引。左侧目录切换，右侧直接预览页面效果。</p>
       </div>
-      <iframe name="preview" src="oms/order-to-invoice-dialog-v1/" title="原型预览"></iframe>
-    </section>
+      <div class="actions">
+        <a class="btn secondary" href="README.md" target="_blank" rel="noreferrer">仓库说明</a>
+        <a class="btn primary" href="oms/order-to-invoice-dialog-v1/" target="preview">打开示例原型</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="panel nav">
+        <div class="nav-header">
+          <h2>业务域入口</h2>
+          <p>每个一级目录都有自己的入口页。当前仅 OMS 下有可演示的原型，其余目录先保留目录级入口。</p>
+        </div>
+        <nav class="nav-list" aria-label="业务域入口">
+          <a class="nav-item active" href="oms/" target="preview">
+            <strong>OMS</strong>
+            <span>订单转发票信息提示原型。点击进入目录页，再打开具体页面。</span>
+          </a>
+          <a class="nav-item" href="wms/" target="preview">
+            <strong>WMS</strong>
+            <span>仓库管理原型目录入口。</span>
+          </a>
+          <a class="nav-item" href="erp/" target="preview">
+            <strong>ERP</strong>
+            <span>ERP 与后台原型目录入口。</span>
+          </a>
+          <a class="nav-item" href="tms/" target="preview">
+            <strong>TMS</strong>
+            <span>物流与运输管理原型目录入口。</span>
+          </a>
+          <a class="nav-item" href="shared/" target="preview">
+            <strong>Shared</strong>
+            <span>跨系统公共原型目录入口。</span>
+          </a>
+        </nav>
+      </section>
+
+      <section class="panel preview">
+        <div class="preview-header">
+          <strong>在线预览</strong>
+          <span>右侧随左侧入口切换</span>
+        </div>
+        <iframe name="preview" src="oms/" title="原型预览"></iframe>
+      </section>
+    </main>
   </div>
-</div>
 </body>
 </html>
